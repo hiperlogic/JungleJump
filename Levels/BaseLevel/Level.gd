@@ -15,6 +15,7 @@ func _ready():
 	$Player.start($PlayerSpawn.position)
 	set_camera_limits()
 	pickups.hide()
+	$Player.connect("dead", self, '_on_Player_dead')
 	spawn_pickups()
 
 func set_camera_limits():
@@ -40,8 +41,14 @@ func on_Collectible_pickup():
 	emit_signal('score_changed', score)
 
 func _on_Player_dead():
+	GameState.restart()
 	pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
+
+
+func _on_Door_body_entered(body):
+	GameState.next_level()
+	pass # Replace with function body.

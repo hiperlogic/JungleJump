@@ -15,6 +15,9 @@ var anim
 var new_anim
 var velocity = Vector2()
 
+var max_jumps = 2
+var jump_count = 0
+
 func get_input():
 	if state == States.HURT:
 		return #No movements in this state
@@ -29,10 +32,18 @@ func get_input():
 	if left:
 		velocity.x -= run_speed
 		$Sprite.flip_h = true
-	# Jumping only when on floor (we have no double jumps here!)
+
+	if jump and state == States.JUMP and jump_count < max_jumps:
+		new_anim = 'jump_up'
+		velocity.y = jump_speed/1.5
+		jump_count += 1
+
+	# Jumping only when on floor (we now have double jumps here!)
 	if jump and is_on_floor():
 		change_state(States.JUMP)
 		velocity.y = jump_speed
+		
+		
 	# States Changes according to Status
 	if state == States.IDLE and velocity.x != 0:
 		change_state(States.RUN)
@@ -65,6 +76,7 @@ func change_state(new_state):
 				change_state(States.DEAD)
 		States.JUMP:
 			new_anim = 'jump_up'
+			jump_count = 1
 		States.DEAD:
 			emit_signal("dead")
 			hide()
@@ -96,6 +108,8 @@ func _physics_process(delta):
 		new_anim = 'jump_down'
 	if state == States.JUMP and is_on_floor():
 		change_state(States.IDLE)
+	if position.y > 1000:
+		change_state(States.DEAD)
 	
 
 func start(pos):

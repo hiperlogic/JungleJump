@@ -11,7 +11,12 @@ config_version=4
 [application]
 
 config/name="Jungle Jump"
+run/main_scene="res://Title/TitleScene.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+GameState="*res://GameState.gd"
 
 [display]
 
