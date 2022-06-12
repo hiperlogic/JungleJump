@@ -79,6 +79,12 @@ func _physics_process(delta):
 		$AnimationPlayer.play(anim)
 	# Move the player
 	velocity = move_and_slide(velocity, Vector2(0,-1))
+	if state == States.HURT:
+		return
+	for idx in range(get_slide_count()):
+		var collision = get_slide_collision(idx)
+		if collision.collider.name == 'DangerTiles':
+			hurt()
 	if state == States.JUMP and velocity.y > 0:
 		new_anim = 'jump_down'
 	if state == States.JUMP and is_on_floor():
