@@ -9,7 +9,7 @@ export (int) var run_speed
 export (int) var jump_speed
 export (int) var gravity
 
-enum States {IDLE, RUN, JUMP, HURT, DEAD}
+enum States {IDLE, RUN, JUMP, HURT, DEAD, CROUCH}
 var state
 var anim
 var new_anim
@@ -24,6 +24,7 @@ func get_input():
 	var right = Input.is_action_pressed("right")
 	var left = Input.is_action_pressed("left")
 	var jump = Input.is_action_just_pressed("jump")
+	var down = Input.is_action_pressed("crouch")
 	
 	velocity.x = 0
 	if right:
@@ -33,10 +34,16 @@ func get_input():
 		velocity.x -= run_speed
 		$Sprite.flip_h = true
 
+	if down and is_on_floor():
+		change_state(States.CROUCH)
+	if !down and state == States.CROUCH:
+		change_state(States.IDLE)
+
 	if jump and state == States.JUMP and jump_count < max_jumps:
 		new_anim = 'jump_up'
 		velocity.y = jump_speed/1.5
 		jump_count += 1
+
 
 	# Jumping only when on floor (we now have double jumps here!)
 	if jump and is_on_floor():
@@ -45,7 +52,7 @@ func get_input():
 		
 		
 	# States Changes according to Status
-	if state == States.IDLE and velocity.x != 0:
+	if state in [States.IDLE, States.CROUCH] and velocity.x != 0:
 		change_state(States.RUN)
 	if state == States.RUN and velocity.x == 0:
 		change_state(States.IDLE)
@@ -80,6 +87,8 @@ func change_state(new_state):
 		States.DEAD:
 			emit_signal("dead")
 			hide()
+		States.CROUCH:
+			new_anim = 'crouch'
 	
 
 func _physics_process(delta):
