@@ -1,5 +1,10 @@
 extends KinematicBody2D
 
+signal life_changes
+signal dead
+
+var life
+
 export (int) var run_speed
 export (int) var jump_speed
 export (int) var gravity
@@ -51,9 +56,18 @@ func change_state(new_state):
 			new_anim = 'run'
 		States.HURT:
 			new_anim = 'hurt'
+			velocity.y = -200
+			velocity.x = -100 * sign(velocity.x)
+			life -= 1
+			emit_signal('life_changed', life)
+			yield(get_tree().create_timer(0.5), 'timeout')
+			change_state(States.IDLE)
+			if life <=0:
+				change_state(States.DEAD)
 		States.JUMP:
 			new_anim = 'jump_up'
 		States.DEAD:
+			emit_signal("dead")
 			hide()
 	
 
@@ -74,8 +88,14 @@ func _physics_process(delta):
 
 func start(pos):
 	position = pos
+	life = 3
+	emit_signal('life_changed', life)
 	show()
 	change_state(States.IDLE)
+
+func hurt():
+	if state != States.HURT:
+		change_state(States.HURT)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
