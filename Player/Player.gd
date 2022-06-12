@@ -1,6 +1,6 @@
 extends KinematicBody2D
 
-signal life_changes
+signal life_changed
 signal dead
 
 var life
@@ -39,7 +39,6 @@ func get_input():
 	if state == States.RUN and velocity.x == 0:
 		change_state(States.IDLE)
 	if state in [States.IDLE, States.RUN] and !is_on_floor():
-		print_debug("Falling!")
 		change_state(States.JUMP)
 
 # Called when the node enters the scene tree for the first time.
