@@ -85,6 +85,13 @@ func _physics_process(delta):
 		var collision = get_slide_collision(idx)
 		if collision.collider.name == 'DangerTiles':
 			hurt()
+		if collision.collider.is_in_group('enemies'):
+			var player_feet = (position + $CollisionShape2D.shape.extents).y
+			if player_feet < collision.collider.position.y:
+				collision.collider.take_damage()
+				velocity.y = -200
+			else:
+				hurt()
 	if state == States.JUMP and velocity.y > 0:
 		new_anim = 'jump_down'
 	if state == States.JUMP and is_on_floor():

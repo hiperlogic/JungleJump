@@ -22,6 +22,10 @@ func _physics_process(delta):
 	if position.y > 1000:
 		queue_free()
 
+func take_damage():
+	$AnimationPlayer.play("death")
+	$CollisionShape2D.disabled = true
+	set_physics_process(false)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -31,3 +35,8 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
+
+
+func _on_AnimationPlayer_animation_finished(anim_name):
+	if anim_name == 'death':
+		queue_free()
