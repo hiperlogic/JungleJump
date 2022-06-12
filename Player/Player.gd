@@ -108,6 +108,7 @@ func _physics_process(delta):
 		new_anim = 'jump_down'
 	if state == States.JUMP and is_on_floor():
 		change_state(States.IDLE)
+		$Dust.emitting = true
 	if position.y > 1000:
 		change_state(States.DEAD)
 	
