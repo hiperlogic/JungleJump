@@ -8,13 +8,15 @@ var life
 export (int) var run_speed
 export (int) var jump_speed
 export (int) var gravity
+export (int) var climb_speed
 
-enum States {IDLE, RUN, JUMP, HURT, DEAD, CROUCH}
+enum States {IDLE, RUN, JUMP, HURT, DEAD, CROUCH, CLIMB}
 var state
 var anim
 var new_anim
 var velocity = Vector2()
 
+var is_on_ladder = false
 var max_jumps = 2
 var jump_count = 0
 
@@ -25,7 +27,7 @@ func get_input():
 	var left = Input.is_action_pressed("left")
 	var jump = Input.is_action_just_pressed("jump")
 	var down = Input.is_action_pressed("crouch")
-	
+	var climb = Input.is_action_pressed("climb")
 	velocity.x = 0
 	if right:
 		velocity.x += run_speed
@@ -38,6 +40,19 @@ func get_input():
 		change_state(States.CROUCH)
 	if !down and state == States.CROUCH:
 		change_state(States.IDLE)
+
+	if climb and state != States.CLIMB and is_on_ladder:
+		change_state(States.CLIMB)
+	if state == States.CLIMB:
+		if climb:
+			velocity.y = -climb_speed
+		elif down:
+			velocity.y = climb_speed
+		else:
+			velocity.y = 0
+			$AnimationPlayer.play("climb")
+	if state ==  States.CLIMB and not is_on_ladder:
+		change_state(States.IDLE)		
 
 	if jump and state == States.JUMP and jump_count < max_jumps:
 		new_anim = 'jump_up'
@@ -89,11 +104,14 @@ func change_state(new_state):
 			hide()
 		States.CROUCH:
 			new_anim = 'crouch'
+		States.CLIMB:
+			new_anim = 'climb'
 	
 
 func _physics_process(delta):
-	# Force the character to the ground
-	velocity.y += gravity*delta
+	# Force the character to the ground only when not climbing
+	if state != States.CLIMB:
+		velocity.y += gravity*delta
 	get_input()
 	if new_anim != anim:
 		anim = new_anim
